@@ -1,0 +1,10 @@
+---
+
+submariner_clusterset_name: cluster1
+submariner_clusters:
+  - name: primary
+    aws_access_key_id: CHANGEME
+    aws_secret_access_key: CHANGEME 
+  - name: secondary
+    aws_access_key_id: CHANGEME
+    aws_secret_access_key: CHANGEME

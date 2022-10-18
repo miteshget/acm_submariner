@@ -1,0 +1,54 @@
+---
+# Implement your Workload deployment tasks here
+- name: Setting up workload for user
+  debug:
+    msg: "Setting up workload for user ocp_username = {{ ocp_username }}"
+
+- environment:
+    KUBECONFIG: "{{ tmp_kubeconfig }}"
+  block:
+    - name: Create rhacm clusterset
+      k8s:
+        state: present
+        definition: "{{ lookup('template', './templates/managed-cluster-set.yaml.j2' ) | from_yaml }}"
+
+    - name: Submariner setup
+      k8s:
+        state: present
+        definition: "{{ lookup('template', item.1 ) | from_yaml }}"
+      loop: "{{ submariner_clusters |
+              product([
+                  './templates/update-cluster-label.yaml.j2',
+                  './templates/aws-secret.yaml.j2',
+                  './templates/submariner-addon.yaml.j2',
+                  './templates/submariner-config.yaml.j2'
+                ])|list }}"
+
+    - name: Create submariner broker
+      k8s:
+        state: present
+        definition: "{{ lookup('template', './templates/submariner-broker.yaml.j2' ) | from_yaml }}"
+
+    - name: Wait until submariner is ready
+      k8s_info:
+        api_version: addon.open-cluster-management.io/v1alpha1
+        kind: ManagedClusterAddOn
+        name: submariner
+        namespace: "{{ item.0.name }}"
+      register: r_submariner
+      vars:
+        _query: >-
+          [?starts_with(spec.clusterServiceVersionNames[0], 'aap-operator')]
+      retries: 30
+      delay: 10
+      until:
+        - r_submariner.resources | length > 0
+        - r_submariner.resources | to_json | from_json | json_query(_query)
+
+
+# Leave this as the last task in the playbook.
+- name: workload tasks complete
+  debug:
+    msg: "Workload Tasks completed successfully."
+  when: not silent | bool
+
