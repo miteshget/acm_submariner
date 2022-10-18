@@ -60,7 +60,6 @@
           "{{ r_submariner.results.0.resources.0.status.conditions |json_query(_agent) | join('') }}"
            "{{ r_submariner.results.0.resources.0.status.conditions |json_query(_gateway) | join('') }}"
     - vars:
-        _connection: "[?starts_with(type, 'SubmarinerConnectionDegraded')].status"
         _connection: "[?type=='SubmarinerConnectionDegraded'].status"
         _agent: "[?type=='SubmarinerAgentDegraded'].status"
         _gateway: "[?type=='SubmarinerGatewayNodesLabeled'].status"
