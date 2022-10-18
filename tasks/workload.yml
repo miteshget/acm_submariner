@@ -37,17 +37,29 @@
         namespace: "{{ item.name }}"
       loop: "{{ submariner_clusters }}"
       register: r_submariner
+      vars:
+        _connection: "[?type=='SubmarinerConnectionDegraded'].status"
+        _agent: "[?type=='SubmarinerAgentDegraded'].status"
+        _gateway: "[?type=='SubmarinerGatewayNodesLabeled'].status"
+      until:
+        - not r_submariner.resources.0.status.conditions |json_query(_connection) |bool
+        - not r_submariner.resources.0.status.conditions |json_query(_agent) |bool
+        - r_submariner.resources.0.status.conditions |json_query(_gateway)
+      retries: 30
+      delay: 30
 
-      # vars:
-      #   _query: >-
-      #     [?starts_with(spec.clusterServiceVersionNames[0], 'aap-operator')]
-      # retries: 30
-      # delay: 10
-      # until:
-      #   - r_submariner.resources | length > 0
-      #   - r_submariner.resources | to_json | from_json | json_query(_query)
 
-    - debug: var=r_submariner.results.0.resources.status.conditions
+    # - debug: var=r_submariner.results.0.resources.0.status.conditions
+    # - debug: var=r_submariner.results.1.resources.0.status.conditions
+    # - vars:
+    #     _connection: "[?type=='SubmarinerConnectionDegraded'].status"
+    #     _agent: "[?type=='SubmarinerAgentDegraded'].status"
+    #     _gateway: "[?type=='SubmarinerGatewayNodesLabeled'].status"
+    #   debug:
+    #     msg: |
+    #       "{{ r_submariner.results.0.resources.0.status.conditions |json_query(_connection) }}"
+    #       "{{ r_submariner.results.0.resources.0.status.conditions |json_query(_agent) }}"
+    #       "{{ r_submariner.results.0.resources.0.status.conditions |json_query(_gateway) }}"
 
 # Leave this as the last task in the playbook.
 - name: workload tasks complete

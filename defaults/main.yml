@@ -5,7 +5,7 @@ silent: false
 tmp_dir: /tmp/{{ guid }}
 tmp_kubeconfig: "{{ tmp_dir }}/.kube/config"
 
-submariner_clusterset_name: cluster1
+submariner_clusterset_name: clusterset1
 submariner_clusters:
   - name: primary
     aws_access_key_id: CHANGEME
