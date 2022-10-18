@@ -72,7 +72,6 @@
         verbosity: 2
 
 
-
 # Leave this as the last task in the playbook.
 - name: workload tasks complete
   debug:
