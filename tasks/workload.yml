@@ -34,7 +34,7 @@
         api_version: addon.open-cluster-management.io/v1alpha1
         kind: ManagedClusterAddOn
         name: submariner
-        namespace: "{{ item.0.name }}"
+        namespace: "{{ item.name }}"
       loop: "{{ submariner_clusters }}"
       register: r_submariner
 
