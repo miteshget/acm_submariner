@@ -1,7 +1,7 @@
 apiVersion: cluster.open-cluster-management.io/v1
 kind: ManagedCluster
 metadata:
-  name: "{{ item.0.name }}""
+  name: "{{ item.0.name }}"
   labels:
     cluster.open-cluster-management.io/clusterset: "{{ submariner_clusterset_name }}"
 spec:
