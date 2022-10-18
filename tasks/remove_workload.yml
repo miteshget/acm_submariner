@@ -19,9 +19,9 @@
         state: present
         definition: "{{ lookup('template', item.1 ) | from_yaml }}"
       loop: "{{ submariner_clusters |product([
-                  './templates/aws-secret.yaml.j2',
+                  './templates/submariner-config.yaml.j2',
                   './templates/submariner-addon.yaml.j2',
-                  './templates/submariner-config.yaml.j2'
+                  './templates/aws-secret.yaml.j2'
                 ])|list }}"
 
     - name: Remove submariner broker
