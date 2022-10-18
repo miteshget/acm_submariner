@@ -47,7 +47,7 @@
       #   - r_submariner.resources | length > 0
       #   - r_submariner.resources | to_json | from_json | json_query(_query)
 
-    - debug: var=r_submariner
+    - debug: var=r_submariner.results.0.resources.status.conditions
 
 # Leave this as the last task in the playbook.
 - name: workload tasks complete
