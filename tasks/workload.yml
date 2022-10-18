@@ -16,8 +16,7 @@
       k8s:
         state: present
         definition: "{{ lookup('template', item.1 ) | from_yaml }}"
-      loop: "{{ submariner_clusters |
-              product([
+      loop: "{{ submariner_clusters |product([
                   './templates/update-cluster-label.yaml.j2',
                   './templates/aws-secret.yaml.j2',
                   './templates/submariner-addon.yaml.j2',
@@ -42,24 +41,37 @@
         _agent: "[?type=='SubmarinerAgentDegraded'].status"
         _gateway: "[?type=='SubmarinerGatewayNodesLabeled'].status"
       until:
-        - not r_submariner.resources.0.status.conditions |json_query(_connection) |bool
-        - not r_submariner.resources.0.status.conditions |json_query(_agent) |bool
-        - r_submariner.resources.0.status.conditions |json_query(_gateway)
+        - not r_submariner.resources.0.status.conditions |json_query(_connection) |join('') |bool
+        - not r_submariner.resources.0.status.conditions |json_query(_agent) | join('') |bool
+        - r_submariner.resources.0.status.conditions |json_query(_gateway) | join('') |bool
       retries: 30
       delay: 30
 
 
-    # - debug: var=r_submariner.results.0.resources.0.status.conditions
-    # - debug: var=r_submariner.results.1.resources.0.status.conditions
-    # - vars:
-    #     _connection: "[?type=='SubmarinerConnectionDegraded'].status"
-    #     _agent: "[?type=='SubmarinerAgentDegraded'].status"
-    #     _gateway: "[?type=='SubmarinerGatewayNodesLabeled'].status"
-    #   debug:
-    #     msg: |
-    #       "{{ r_submariner.results.0.resources.0.status.conditions |json_query(_connection) }}"
-    #       "{{ r_submariner.results.0.resources.0.status.conditions |json_query(_agent) }}"
-    #       "{{ r_submariner.results.0.resources.0.status.conditions |json_query(_gateway) }}"
+    - debug: var=r_submariner.results.0.resources.0.status.conditions
+    - debug: var=r_submariner.results.1.resources.0.status.conditions
+    - vars:
+        _connection: "[?type=='SubmarinerConnectionDegraded'].status"
+        _agent: "[?type=='SubmarinerAgentDegraded'].status"
+        _gateway: "[?type=='SubmarinerGatewayNodesLabeled'].status"
+      debug:
+        msg: |
+          "{{ r_submariner.results.0.resources.0.status.conditions |json_query(_connection) | join('')  }}"
+          "{{ r_submariner.results.0.resources.0.status.conditions |json_query(_agent) | join('') }}"
+           "{{ r_submariner.results.0.resources.0.status.conditions |json_query(_gateway) | join('') }}"
+    - vars:
+        q: [?starts_with(spec.clusterServiceVersionNames[0], 'aap-operator')]
+        _connection: "[?starts_with(type, 'SubmarinerConnectionDegraded')].status"
+        _connection: "[?type=='SubmarinerConnectionDegraded'].status"
+        _agent: "[?type=='SubmarinerAgentDegraded'].status"
+        _gateway: "[?type=='SubmarinerGatewayNodesLabeled'].status"
+      debug:
+        msg: |
+          "{{ r_submariner.results.1.resources.0.status.conditions |json_query(_connection) | join('') }}"
+          "{{ r_submariner.results.1.resources.0.status.conditions |json_query(_agent) | join('') }}"
+           "{{ r_submariner.results.1.resources.0.status.conditions |json_query(_gateway) | join('') }}"
+
+
 
 # Leave this as the last task in the playbook.
 - name: workload tasks complete
