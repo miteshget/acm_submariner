@@ -47,27 +47,30 @@
       retries: 30
       delay: 30
 
+    - name: Print query output
+      vars:
+        _connection: "[?type=='SubmarinerConnectionDegraded'].status"
+        _agent: "[?type=='SubmarinerAgentDegraded'].status"
+        _gateway: "[?type=='SubmarinerGatewayNodesLabeled'].status"
+      debug:
+        msg: |
+          "{{ r_submariner.results.[item].resources.0.status.conditions |json_query(_connection) | join('')  }}"
+          "{{ r_submariner.results.[item].resources.0.status.conditions |json_query(_agent) | join('') }}"
+           "{{ r_submariner.results.[item].resources.0.status.conditions |json_query(_gateway) | join('') }}"
+        verbosity: 2
+      loop:
+        - 0
+        - 1
 
-    - debug: var=r_submariner.results.0.resources.0.status.conditions
-    - debug: var=r_submariner.results.1.resources.0.status.conditions
-    - vars:
-        _connection: "[?type=='SubmarinerConnectionDegraded'].status"
-        _agent: "[?type=='SubmarinerAgentDegraded'].status"
-        _gateway: "[?type=='SubmarinerGatewayNodesLabeled'].status"
-      debug:
-        msg: |
-          "{{ r_submariner.results.0.resources.0.status.conditions |json_query(_connection) | join('')  }}"
-          "{{ r_submariner.results.0.resources.0.status.conditions |json_query(_agent) | join('') }}"
-           "{{ r_submariner.results.0.resources.0.status.conditions |json_query(_gateway) | join('') }}"
-    - vars:
-        _connection: "[?type=='SubmarinerConnectionDegraded'].status"
-        _agent: "[?type=='SubmarinerAgentDegraded'].status"
-        _gateway: "[?type=='SubmarinerGatewayNodesLabeled'].status"
-      debug:
-        msg: |
-          "{{ r_submariner.results.1.resources.0.status.conditions |json_query(_connection) | join('') }}"
-          "{{ r_submariner.results.1.resources.0.status.conditions |json_query(_agent) | join('') }}"
-           "{{ r_submariner.results.1.resources.0.status.conditions |json_query(_gateway) | join('') }}"
+    # - vars:
+    #     _connection: "[?type=='SubmarinerConnectionDegraded'].status"
+    #     _agent: "[?type=='SubmarinerAgentDegraded'].status"
+    #     _gateway: "[?type=='SubmarinerGatewayNodesLabeled'].status"
+    #   debug:
+    #     msg: |
+    #       "{{ r_submariner.results.1.resources.0.status.conditions |json_query(_connection) | join('') }}"
+    #       "{{ r_submariner.results.1.resources.0.status.conditions |json_query(_agent) | join('') }}"
+    #        "{{ r_submariner.results.1.resources.0.status.conditions |json_query(_gateway) | join('') }}"
 
 
 
