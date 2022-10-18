@@ -16,7 +16,7 @@
   block:
     - name: Remove submariner setup
       k8s:
-        state: present
+        state: absent
         definition: "{{ lookup('template', item.1 ) | from_yaml }}"
       loop: "{{ submariner_clusters |product([
                   './templates/submariner-config.yaml.j2',
